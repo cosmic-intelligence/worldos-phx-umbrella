@@ -1,16 +1,81 @@
-# ChatUmbrellaTest
+# WorldOS Phoenix Umbrella
 
-**TODO: Add description**
-# ➊ umbrella skeleton
-mix new chat_umbrella --umbrella
-cd chat_umbrella/apps     # every child lives here
+An Elixir/Phoenix umbrella application for WorldOS, providing a modular architecture with multiple specialized apps working together.
 
-# ➋ domain/data app (binary UUID PKs, no web assets)
-mix phx.new.ecto core --binary-id
+## Project Structure
 
-# ➌ gateway – Channels + JSON only
-mix phx.new.web gateway_web --no-html --no-assets --no-live
-# (command must be run inside apps/ – see docs)  [oai_citation:1‡HexDocs](https://hexdocs.pm/phoenix/1.6.15/Mix.Tasks.Phx.New.Web.html?utm_source=chatgpt.com)
+This umbrella project consists of the following applications:
 
-# ➍ Python bridge library
-mix new ai_bridge
+- **`:core`** - Domain/data application with binary UUID primary keys
+- **`:gateway_web`** - Phoenix web application providing JSON API endpoints
+- **`:ai_bridge`** - Python integration bridge for AI capabilities
+
+## Setup & Installation
+
+### Prerequisites
+
+- Elixir 1.14 or later
+- Phoenix 1.7 or later
+- PostgreSQL
+- Python 3
+
+### Development Setup
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/cosmic-intelligence/worldos-phx-umbrella.git
+   cd worldos-phx-umbrella
+   ```
+
+2. Install dependencies
+   ```bash
+   mix deps.get
+   ```
+
+3. Setup the database
+   ```bash
+   mix ecto.setup
+   ```
+
+4. Start the Phoenix server
+   ```bash
+   mix phx.server
+   ```
+
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+
+## Development Workflow
+
+This project follows a standard Git flow with three primary branches:
+- `main` - Production-ready code
+- `staging` - Pre-production testing
+- `dev` - Active development
+
+Always create feature branches from `dev` and submit pull requests back to the `dev` branch.
+
+## Applications
+
+### Core
+
+The Core application handles domain logic and database interactions using:
+- Ecto for database access
+- Binary UUIDs for primary keys
+- PostgreSQL as the database
+
+### Gateway Web
+
+The Gateway Web application provides the API interface:
+- JSON-only API (no HTML/assets)
+- API endpoints for client communication
+- Integration with Core for data access
+
+### AI Bridge
+
+The AI Bridge application enables Python integration:
+- Communication between Elixir and Python
+- Machine learning capabilities
+- AI features through Python libraries
+
+## License
+
+MIT
