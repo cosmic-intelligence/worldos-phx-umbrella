@@ -17,7 +17,7 @@ defmodule ChatUmbrellaTest.MixProject do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:earl_port, "~> 0.3.1"}
+      {:erlport, "~> 0.11"}
     ]
   end
 end
