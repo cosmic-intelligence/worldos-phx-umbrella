@@ -2,6 +2,7 @@ defmodule GatewayWeb.UsersController do
   use GatewayWeb, :controller
 
   alias Core.Accounts
+  alias GatewayWeb.ControllerHelpers, as: Helpers
 
   @doc """
   GET /api/users/:id
@@ -38,12 +39,43 @@ defmodule GatewayWeb.UsersController do
     end
   end
 
-  # Simple helper to turn changeset errors into a map similar to Phoenix.HTML helpers
-  defp translate_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Enum.reduce(opts, msg, fn {key, value}, acc ->
-        String.replace(acc, "%{#{key}}", to_string(value))
-      end)
-    end)
+  @doc """
+  GET /api/users
+  Returns list of users.
+  """
+  def index(conn, _params) do
+    users = Accounts.list_users()
+    json(conn, Enum.map(users, &serialize_user/1))
   end
+
+  @doc """
+  PUT/PATCH /api/users/:id
+  Updates a user (username/email).
+  """
+  def update(conn, %{"id" => id} = params) do
+    user = Accounts.get_user!(id)
+    attrs = Map.take(params, ["username", "email"])
+
+    case Accounts.update_user(user, attrs) do
+      {:ok, user} ->
+        json(conn, serialize_user(user))
+
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: Helpers.translate_errors(cs)})
+    end
+  end
+
+  @doc """
+  DELETE /api/users/:id
+  Deletes the user.
+  """
+  def delete(conn, %{"id" => id}) do
+    user = Accounts.get_user!(id)
+    {:ok, _} = Accounts.delete_user(user)
+    send_resp(conn, :no_content, "")
+  end
+
+  defp serialize_user(user), do: %{id: user.id, username: user.username, email: user.email}
+
+  defp translate_errors(cs), do: Helpers.translate_errors(cs)
 end
