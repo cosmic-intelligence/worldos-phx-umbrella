@@ -23,7 +23,7 @@ defmodule GatewayWeb.MixProject do
   def application do
     [
       mod: {GatewayWeb.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :httpoison]
     ]
   end
 
@@ -44,6 +44,7 @@ defmodule GatewayWeb.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
+      {:httpoison, "~> 2.0"},
 
       # Add dependencies on other umbrella apps
       {:core, in_umbrella: true},
