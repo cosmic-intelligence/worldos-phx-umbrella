@@ -1,6 +1,8 @@
 defmodule Core.RepoTest do
   use Core.DataCase
 
+  import Ecto.Query
+
   test "database connection is working" do
     # Explanation: This test verifies that we can query the database
     # by making a simple query that always succeeds on a connected database
@@ -21,8 +23,7 @@ defmodule Core.RepoTest do
                "success"
              end)
 
-    # Explanation: Let's also check that the connection pool is available
-    # by verifying Repo.all works with a simple SQL fragment
-    assert is_list(Core.Repo.all(fragment("SELECT generate_series(1, 3) as num")))
+    # Additional simple query via Ecto.SQL to ensure connection responds
+    assert %{rows: [[1]]} = Ecto.Adapters.SQL.query!(Core.Repo, "SELECT 1")
   end
 end

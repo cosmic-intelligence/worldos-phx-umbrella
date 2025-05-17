@@ -73,8 +73,45 @@ The Gateway Web application provides the API interface:
 
 The AI Bridge application enables Python integration:
 - Communication between Elixir and Python
-- Machine learning capabilities
-- AI features through Python libraries
+- Machine-learning features powered by Python libraries
+
+## Domain Development Pattern (Hand-crafted approach)
+
+We purposefully avoid the big `phx.gen.*` generators and add each resource
+by hand.  
+This keeps noise to an absolute minimum and makes every byte of production
+code obvious.
+
+**Step-by-step recipe (repeat for every new table / API):**
+
+1. **Migration**  
+   ```bash
+   mix ecto.gen.migration create_<table_name>
+   ```  
+   Open the file and write the full DDL yourself (extensions, enums,
+   cascading FKs, partial indexes).
+
+2. **Schema** (`apps/core/lib/core/<context>/<schema>.ex`)  
+   Use binary UUID primary keys and `Ecto.Enum` for status/role columns.
+
+3. **Context** (`apps/core/lib/core/<context>.ex`)  
+   Add only the CRUD helpers you need.  Nothing more.
+
+4. **Tests** (`apps/core/test/core/<context>_test.exs`)  
+   Use `Core.DataCase` so every test runs inside an SQL sandbox.
+
+5. **Gateway API**  
+   • Add a controller under  
+     `apps/gateway_web/lib/gateway_web/controllers/`  
+   • Wire routes in `apps/gateway_web/lib/gateway_web/router.ex`
+
+6. `mix ecto.migrate && mix test` – repeat until green.
+
+---
+
+### Implemented example – Users
+
+Files introduced/edited:
 
 ## License
 

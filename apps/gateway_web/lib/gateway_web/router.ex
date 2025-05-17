@@ -10,5 +10,7 @@ defmodule GatewayWeb.Router do
 
     post "/test", TestAPIController, :process
     get "/test", TestAPIController, :process
+    post "/users", UsersController, :create
+    get "/users/:id", UsersController, :show
   end
 end
