@@ -57,7 +57,7 @@ defmodule GatewayWeb.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["test"]
     ]
   end
 end
