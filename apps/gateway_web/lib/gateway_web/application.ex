@@ -9,6 +9,8 @@ defmodule GatewayWeb.Application do
   def start(_type, _args) do
     children = [
       GatewayWeb.Telemetry,
+      # Start the PubSub system for broadcasting events (channels)
+      {Phoenix.PubSub, name: GatewayWeb.PubSub},
       # Start a worker by calling: GatewayWeb.Worker.start_link(arg)
       # {GatewayWeb.Worker, arg},
       # Start to serve requests, typically the last entry

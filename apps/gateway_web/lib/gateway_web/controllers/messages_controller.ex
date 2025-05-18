@@ -15,6 +15,19 @@ defmodule GatewayWeb.MessagesController do
   def create(conn, params) do
     case Messaging.create_message(params) do
       {:ok, msg} ->
+        # Broadcast on channel:<channel_id> topic so connected clients get it.
+        # Use try to avoid crashing when PubSub not started (e.g., in CLI script)
+        try do
+          GatewayWeb.Endpoint.broadcast(
+            "channel:#{msg.channel_id}",
+            "new_message",
+            serialize(msg)
+          )
+        rescue
+          # Silently continue when PubSub is not available
+          _ -> :ok
+        end
+
         conn |> put_status(:created) |> json(serialize(msg))
 
       {:error, cs} ->

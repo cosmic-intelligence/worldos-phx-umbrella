@@ -14,6 +14,15 @@ defmodule GatewayWeb.ServersController do
   def create(conn, params) do
     case Servers.create_server(params) do
       {:ok, server} ->
+        # Broadcast to all clients interested in server changes
+        # Use try to avoid crashing when PubSub not started (e.g., in CLI script)
+        try do
+          GatewayWeb.Endpoint.broadcast("server:all", "new_server", serialize(server))
+        rescue
+          # Silently continue when PubSub is not available
+          _ -> :ok
+        end
+
         conn |> put_status(:created) |> json(serialize(server))
 
       {:error, cs} ->
@@ -26,6 +35,21 @@ defmodule GatewayWeb.ServersController do
 
     case Servers.update_server(server, Map.delete(params, "id")) do
       {:ok, server} ->
+        # Broadcast to both the "all" topic and the specific server topic
+        # Use try to avoid crashing when PubSub not started (e.g., in CLI script)
+        try do
+          GatewayWeb.Endpoint.broadcast("server:all", "updated_server", serialize(server))
+
+          GatewayWeb.Endpoint.broadcast(
+            "server:#{server.id}",
+            "updated_server",
+            serialize(server)
+          )
+        rescue
+          # Silently continue when PubSub is not available
+          _ -> :ok
+        end
+
         json(conn, serialize(server))
 
       {:error, cs} ->
@@ -35,6 +59,16 @@ defmodule GatewayWeb.ServersController do
 
   def delete(conn, %{"id" => id}) do
     server = Servers.get_server!(id)
+    # Broadcast deletion to both topics before actually deleting
+    # Use try to avoid crashing when PubSub not started (e.g., in CLI script)
+    try do
+      GatewayWeb.Endpoint.broadcast("server:all", "deleted_server", %{id: server.id})
+      GatewayWeb.Endpoint.broadcast("server:#{server.id}", "deleted_server", %{id: server.id})
+    rescue
+      # Silently continue when PubSub is not available
+      _ -> :ok
+    end
+
     {:ok, _} = Servers.delete_server(server)
     send_resp(conn, :no_content, "")
   end

@@ -52,4 +52,18 @@ defmodule Core.Accounts do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  @doc """
+  Registers a new user taking raw params that include a plaintext `"password"` key.
+  This keeps password/field naming concerns out of web controllers.
+  NOTE: For now we do *not* hash the password – the caller was already
+  passing plaintext into `hashed_password`. We keep behaviour identical to
+  avoid breaking tests, while centralising the logic in one place.
+  Add hashing here once authentication is implemented.
+  """
+  def register_user(%{"username" => u, "email" => e, "password" => p} = _attrs) do
+    create_user(%{username: u, email: e, hashed_password: p})
+  end
+
+  def register_user(_), do: {:error, :invalid_params}
 end

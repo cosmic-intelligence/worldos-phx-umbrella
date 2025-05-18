@@ -15,6 +15,17 @@ defmodule GatewayWeb.ChannelsController do
   def create(conn, params) do
     case Servers.create_channel(params) do
       {:ok, ch} ->
+        # Broadcast to the server topic that a channel was created
+        # Use try to avoid crashing when PubSub not started (e.g., in CLI script)
+        try do
+          if Map.has_key?(ch, :server_id) do
+            GatewayWeb.Endpoint.broadcast("server:#{ch.server_id}", "new_channel", serialize(ch))
+          end
+        rescue
+          # Silently continue when PubSub is not available
+          _ -> :ok
+        end
+
         conn |> put_status(:created) |> json(serialize(ch))
 
       {:error, cs} ->

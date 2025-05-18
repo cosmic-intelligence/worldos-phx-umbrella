@@ -20,13 +20,7 @@ defmodule GatewayWeb.UsersController do
   Creates a new user and returns it.
   """
   def create(conn, params) do
-    attrs = %{
-      username: Map.get(params, "username"),
-      email: Map.get(params, "email"),
-      hashed_password: Map.get(params, "password")
-    }
-
-    case Accounts.create_user(attrs) do
+    case Accounts.register_user(params) do
       {:ok, user} ->
         conn
         |> put_status(:created)
@@ -36,6 +30,9 @@ defmodule GatewayWeb.UsersController do
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{errors: translate_errors(changeset)})
+
+      {:error, _} ->
+        conn |> put_status(:bad_request) |> json(%{error: "invalid parameters"})
     end
   end
 
